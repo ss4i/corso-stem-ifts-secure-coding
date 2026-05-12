@@ -1,0 +1,28 @@
+# Office lockfiles
+~$*.docx
+~$*.xlsx
+~$*.pptx
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*~
+
+# Python (per eventuali lab futuri)
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# Build/cache
+*.aux
+*.log
+*.toc
+Abstract_STEM.pdf
