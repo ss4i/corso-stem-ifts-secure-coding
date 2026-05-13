@@ -607,6 +607,31 @@ def build_dispensa():
         "anni prima. È un'abitudine quotidiana di chi scrive codice.")
 
     add_h2(doc, "Cosa significa 'essere sicuri'")
+
+    # Quote Schneier
+    p = doc.add_paragraph()
+    p.paragraph_format.left_indent = Cm(1)
+    p.paragraph_format.right_indent = Cm(1)
+    p.paragraph_format.space_before = Pt(12)
+    p.paragraph_format.space_after = Pt(4)
+    run = p.add_run('"La sicurezza non è una feature: è una proprietà del sistema."')
+    run.font.size = Pt(16)
+    run.font.italic = True
+    run.font.color.rgb = hex_to_rgb(COL_PRIMARY)
+    p2 = doc.add_paragraph()
+    p2.paragraph_format.left_indent = Cm(1)
+    p2.paragraph_format.space_after = Pt(12)
+    run = p2.add_run("— Bruce Schneier")
+    run.font.size = Pt(11)
+    run.font.color.rgb = hex_to_rgb(COL_GREY)
+    run.font.italic = True
+
+    add_para(doc,
+        "Tieniti questa frase. È il riassunto in una riga di tutto il corso. "
+        "La sicurezza non è qualcosa che 'aggiungi' alla fine, come una "
+        "funzionalità in più; è una PROPRIETÀ che il sistema possiede o non "
+        "possiede, e che si decide al momento del DESIGN.")
+
     add_para(doc,
         "In informatica, 'sicurezza' non è una cosa sola. È la conservazione di "
         "proprietà misurabili. Le tre più importanti si chiamano CIA Triad:")
@@ -655,6 +680,43 @@ def build_dispensa():
     add_image(doc, "img/cap1_defense_depth.png",
               caption="Defense in Depth: strati di difesa indipendenti",
               width_cm=14)
+
+    add_h3(doc, "Fail Secure in pratica — un esempio di codice")
+
+    add_para(doc,
+        "Il principio 'Fail Secure' è semplice ma fa la differenza tra un "
+        "sistema sicuro e uno bucato. Vediamo un esempio concreto. Codice che "
+        "fallisce in modo APERTO (anti-pattern, da NON scrivere mai):")
+
+    add_code_block(doc,
+        """# 🚩 FAIL OPEN — se il check si rompe, l'utente entra LO STESSO
+try:
+    if not is_authorized(user, resource):
+        return 403
+    return resource
+except Exception:
+    return resource   # 💥 disastro silenzioso""")
+
+    add_para(doc,
+        "Sembra 'robusto' perché cattura ogni errore. In realtà è esattamente "
+        "il contrario: trasforma un controllo di sicurezza in un colabrodo. "
+        "La versione corretta:")
+
+    add_code_block(doc,
+        """# ✅ FAIL SECURE — se il check si rompe, il sistema CHIUDE
+try:
+    if not is_authorized(user, resource):
+        return 403
+    return resource
+except Exception as e:
+    log.exception("auth check failed")
+    return 503   # servizio non disponibile,
+                 # NON accesso senza autorizzazione""")
+
+    add_callout(doc, "tip",
+        "In dubbio, il sistema CHIUDE, non apre. Vale per autorizzazione, "
+        "autenticazione, validazione, decisioni critiche di business: il "
+        "default è sempre 'nega + segnala', mai 'permetti silenziosamente'.")
 
     add_h2(doc, "La mentalità avversaria")
     add_para(doc,

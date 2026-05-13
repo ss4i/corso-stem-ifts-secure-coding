@@ -283,6 +283,11 @@ Equifax non è stata attaccata da hacker con superpoteri. È stata attaccata da 
 
 ## 1.3 Cosa significa "essere sicuri"
 
+> *"La sicurezza non è una feature: è una proprietà del sistema."*
+> — **Bruce Schneier**
+
+Tieniti questa frase. È il riassunto in una riga di tutto il corso. La sicurezza non è qualcosa che "aggiungi" alla fine, come una funzionalità in più (es. "ah, mettiamo anche il login"); è una **proprietà** che il sistema possiede o non possiede, e che si decide al momento del **design**.
+
 In informatica, "sicurezza" non è una cosa sola. È la conservazione di **proprietà** misurabili. Le tre più importanti si chiamano **CIA Triad** (niente a che vedere con l'agenzia americana, è solo un acronimo).
 
 **C — Confidentiality (riservatezza)**: i dati sono visibili solo a chi è autorizzato. Esempio: la lista delle password dei clienti non deve essere accessibile a nessuno tranne al sistema che le verifica.
@@ -362,7 +367,34 @@ Ci sono cinque principi che, se rispetti, eviti la stragrande maggioranza dei gu
 
 **2. Defense in Depth (difesa in profondità)**. Mai una difesa sola. Più strati indipendenti, in modo che bucarne uno non comprometta tutto. Per proteggere il login degli utenti: HTTPS sul canale, password con hash robusti, rate limiting sui tentativi, MFA per gli account critici, monitoring degli accessi sospetti. Bucare uno solo di questi cinque strati non basta all'attaccante per entrare.
 
-**3. Fail Secure (fallire in modo sicuro)**. Quando qualcosa va storto, il sistema deve "chiudere", non "aprire". Se il controllo di autorizzazione lancia un'eccezione che non hai previsto, l'utente **non** deve passare. Vedremo nel Cap 4 un esempio in cui un `try/except` mal scritto trasforma un controllo di sicurezza in un colabrodo.
+**3. Fail Secure (fallire in modo sicuro)**. Quando qualcosa va storto, il sistema deve "chiudere", non "aprire". Se il controllo di autorizzazione lancia un'eccezione che non hai previsto, l'utente **non** deve passare.
+
+Esempio di **codice che fallisce in modo aperto** (anti-pattern):
+
+```python
+# 🚩 FAIL OPEN — se il check si rompe, l'utente entra LO STESSO
+try:
+    if not is_authorized(user, resource):
+        return 403
+    return resource
+except Exception:
+    return resource   # 💥 disastro silenzioso
+```
+
+Sembra "robusto" perché cattura ogni errore, ma è esattamente il contrario: trasforma un controllo di sicurezza in un colabrodo. Versione corretta:
+
+```python
+# ✅ FAIL SECURE — se il check si rompe, il sistema CHIUDE
+try:
+    if not is_authorized(user, resource):
+        return 403
+    return resource
+except Exception as e:
+    log.exception("auth check failed")
+    return 503   # servizio non disponibile, NON accesso senza autorizzazione
+```
+
+In dubbio, il sistema **chiude**, non apre. Vale per autorizzazione, autenticazione, validazione, decisioni critiche di business: il default è sempre "nega + segnala", mai "permetti silenziosamente".
 
 **4. KISS (Keep It Simple, Stupid)**. Più codice scrivi, più bug introduci. Più feature aggiungi, più superficie d'attacco crei. La famosa vulnerabilità Log4Shell del 2021 (CVSS 10.0, mezza Internet in panico per due settimane) nasceva da una feature opzionale di Log4j che permetteva di interpolare comandi remoti nei log. Perché una libreria di logging deve eseguire comandi remoti? Non deve. Era una complessità inutile che ha aperto un buco colossale.
 
