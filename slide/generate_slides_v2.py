@@ -1500,7 +1500,7 @@ def download():
 
 def make_l7():
     prs = new_pres()
-    total = 14
+    total = 16
     LL = "L7"
 
     slide_cover(prs, "7", "Documentazione e uso dell'IA",
@@ -1591,6 +1591,33 @@ def make_l7():
         "   pytest + bandit/semgrep + pip-audit",
     ], 10, total, emoji="🔍")
 
+    slide_two_col(prs, LL, "Prompting per la sicurezza: vago vs specifico",
+                   "❌ Prompt VAGO (rischioso)",
+                   ["'Scrivi un endpoint Flask",
+                    "per login'",
+                    "",
+                    "L'IA produce la versione",
+                    "MEDIA: spesso vulnerabile",
+                    "",
+                    "Risultato tipico:",
+                    "  password con SHA-256",
+                    "  nessun rate limit",
+                    "  cookie senza HttpOnly",
+                    "  query con f-string"],
+                   "✅ Prompt SPECIFICO (sicuro)",
+                   ["'Scrivi /login POST che:",
+                    "- bcrypt per password",
+                    "- risposta uniforme",
+                    "  (no user enumeration)",
+                    "- rate limit 5/min",
+                    "- cookie Secure+HttpOnly",
+                    "  +SameSite=Lax",
+                    "- logga eventi auth in",
+                    "  formato JSON ECS'",
+                    "",
+                    "Risultato vicino a giusto"],
+                   11, total)
+
     slide_content(prs, LL, "Quando NON usare l'IA", [
         "Crittografia 'fatta in casa' (usa librerie standard)",
         "Codice di sicurezza critico (authn/authz)",
@@ -1601,20 +1628,38 @@ def make_l7():
         "Dipendenti incollarono codice proprietario in ChatGPT",
         "OpenAI lo usò per training → codice leakato indirettamente",
         "Samsung dovette vietare ChatGPT internamente",
-    ], 11, total, emoji="🛑")
+    ], 12, total, emoji="🛑")
+
+    slide_content(prs, LL, "EU AI Act — la cornice normativa",
+                   [
+                       "Regolamento (UE) 2024/1689 — in vigore agosto 2024",
+                       "Piena applicazione: agosto 2026 — alcune disposizioni 2027",
+                       "",
+                       "Approccio risk-based: 4 categorie",
+                       "  Rischio INACCETTABILE → vietati (social scoring, ecc.)",
+                       "  Rischio ALTO → obblighi stringenti (recruitment, scoring credito)",
+                       "  Rischio LIMITATO → trasparenza (chatbot, deepfake)",
+                       "  Rischio MINIMO → liberi (la maggioranza)",
+                       "",
+                       "Per chi USA AI per scrivere codice: nessun obbligo diretto",
+                       "Per chi INTEGRA AI ad alto rischio in prodotti: documentazione,",
+                       "trasparenza, supervisione umana, dataset governance",
+                   ], 13, total,
+                   subtitle="Sanzioni fino a 35M€ o 7% fatturato per sistemi proibiti",
+                   emoji="⚖")
 
     slide_takeaway(prs, LL, [
         "Documentare la sicurezza è un REQUISITO legale e operativo",
         "SECURITY.md versionato con il codice",
         "L'IA non sa di sicurezza: validare ogni suggerimento",
-        "I 7 errori tipici — riconoscerli a vista",
-        "Mai segreti nei prompt, mai crittografia da AI",
-    ], 12, total)
+        "Prompt specifici = codice più sicuro per default",
+        "EU AI Act dal 2026: documentazione + supervisione umana",
+    ], 14, total)
 
     slide_section(prs, LL, "03", "Lab in aula",
-                   "Validation collettiva di codice AI vulnerabile", 13, total)
+                   "Validation collettiva di codice AI vulnerabile", 15, total)
 
-    slide_qa(prs, LL, 14, total,
+    slide_qa(prs, LL, 16, total,
               next_lesson="L8 — Lab integrato finale")
 
     prs.save("L7_documentazione_ai.pptx")
